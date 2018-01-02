@@ -4,7 +4,7 @@
 
 
 require 'nokogiri'
-# require 'rest-client'
+require 'rest-client'
 require 'pry'
 require 'open-uri'
 
