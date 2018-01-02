@@ -1,4 +1,3 @@
-#testing testing
 
 # require './config/environment.rb'
 
