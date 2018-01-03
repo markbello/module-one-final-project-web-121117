@@ -69,6 +69,12 @@ class CommandLineInterface
     puts movie_array
   end
 
+  def get_film_title_link_by_name
+    html = open('http://www.imdb.com/find?ref_=nv_sr_fn&q=death+wish&s=tt')
+    doc = Nokogiri::HTML(html)
+    film = doc.css("tabl.findList tr")[0]
+    puts film
+  end
 
   def get_film_seeds_by_location(url)
     puts "running get film seeds method #{url}"
