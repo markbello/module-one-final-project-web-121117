@@ -1,5 +1,5 @@
 
-# require './config/environment.rb'
+require './config/environment.rb'
 
 
 require 'nokogiri'
@@ -24,6 +24,8 @@ require 'open-uri'
 
 #FUTURE DEV: consider asking the country first, because it affects how to structure our GET requests
 #            State is only required for US locations
+
+#Film.all.each{|film| film.locations << albany}
 
 html_by_location = open("http://www.imdb.com/search/title?locations=Albany,%20New%20York,%20USA&ref_=ttloc_loc_2")
 html_by_movie = open("http://www.imdb.com/title/tt0944835/locations?ref_=tt_dt_dt")
