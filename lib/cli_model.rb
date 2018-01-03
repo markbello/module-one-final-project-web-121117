@@ -1,9 +1,16 @@
 class CommandLineInterface
 
   def greet
-    # determine if movie or location
-    # if user wants location - call get_input_for_location
-    # if user wants film - call get_input_for_film
+    puts "Hello! Would you like to search by Movie or Location? (M or L)"
+    user_input = gets.chomp.downcase
+
+    if user_input == "m"
+      get_input_for_film
+    elsif user_input == "l"
+      get_input_for_location
+    else puts "Please enter M or L"
+    end
+
   end
 
   def get_input_for_location
@@ -34,7 +41,12 @@ class CommandLineInterface
 
   end
 
+  def get_input_for_film
+    #add method here
+  end
+
   def run
+    greet
     get_input_for_location
 
   end
