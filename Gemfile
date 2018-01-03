@@ -7,4 +7,4 @@ gem "pry"
 gem "require_all"
 gem 'rake'
 gem 'nokogiri'
-# gem 'byebug'
+gem 'byebug'

@@ -52,20 +52,31 @@ class CommandLineInterface
   def film_url_creator(movie_instance)
     film_title_search_prefix = "https://www.google.com/search?q="
     title_array = movie_instance.name.split(" ")
-    search_query = title_array.join("+") + "+imdb"
+    search_query = title_array.join("+")
+    url = get_film_title_link_by_name(search_query)
+    x = url.remove!("/?ref_=fn_tt_tt_1")
+    puts "asdfsfsdfdsfsdf   #{url}"
+    url = "http://www.imdb.com#{url}/locations?ref_=tt_dt_dt"
+    url
     # puts "search_query value #{search_query}"
-    title_search_url = film_title_search_prefix + search_query + "&btnI"
+    # title_search_url = film_title_search_prefix + search_query + "&btnI"
     # puts "title_search_url #{title_search_url}"
     # title_search_html = open(title_search_url)
     # puts "title_search_html is #{title_search_html}"
-    title_search_doc = Nokogiri::HTML(title_search_url)
-    puts "title_search_doc is #{title_search_doc}"
-    puts "title_search_url is #{title_search_url}"
-    film_search_result = title_search_doc.css("link rel="canonical"")
-    puts "film_search_result is #{film_search_result}"
+    # title_search_doc = Nokogiri::HTML(title_search_url)
+    # puts "title_search_doc is #{title_search_doc}"
+    # puts "title_search_url is #{title_search_url}"
+    # film_search_result = title_search_doc.css("link rel="canonical"")
+    # puts "film_search_result is #{film_search_result}"
     # film_imdb_url = film_search_result.attribute["data-href"].value
     # puts "film_imdb_url is #{film_imdb_url}"
     #https://www.google.com/search?q=death+wish+2018+imdb
+  end
+
+  def get_film_title_link_by_name(name)
+    html = open("http://www.imdb.com/find?ref_=nv_sr_fn&q=#{name}&s=tt")
+    doc = Nokogiri::HTML(html)
+    url = doc.css("table.findList tr a")[0].attributes["href"].value
   end
 
   def get_location_seeds_by_film_name(url)
@@ -81,6 +92,7 @@ class CommandLineInterface
       location_hash[:link] = location_item.attributes["href"].value
       location_hash_array << location_hash
     end
+    puts location_hash_array
     location_hash_array
   end
 
@@ -111,11 +123,11 @@ class CommandLineInterface
     puts movie_array
   end
 
-  def get_film_title_link_by_name
+  def get_film_title_link_by_name(name)
     html = open('http://www.imdb.com/find?ref_=nv_sr_fn&q=death+wish&s=tt')
     doc = Nokogiri::HTML(html)
-    film = doc.css("tabl.findList tr")[0]
-    puts film
+    film_url = doc.css("table.findList tr a")[0].attributes["href"].value
+    film_url
   end
 
   def get_film_seeds_by_location(url)
@@ -164,6 +176,7 @@ class CommandLineInterface
 
   def run
     new_instance = greet
+    binding.pry
     # puts new_instance
     if new_instance.is_a?(Location)
 
@@ -174,6 +187,9 @@ class CommandLineInterface
 
     else
       film_url = film_url_creator(new_instance)
+      puts "film_url is #{film_url}"
+      x = get_location_seeds_by_film_name(film_url)
+
       # puts film_url
     end
 

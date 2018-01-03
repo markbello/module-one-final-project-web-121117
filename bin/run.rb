@@ -123,13 +123,13 @@ require_relative '../lib/models/film_location.rb'
   #   html_by_input_location = open("http://www.imdb.com/search/title?locations=#{foreign_location_name}")
   # end
 
-  def get_film_title_link_by_name(name)
-    html = open("http://www.imdb.com/find?ref_=nv_sr_fn&q=#{name}&s=tt")
-    doc = Nokogiri::HTML(html)
-    url = doc.css("table.findList tr a")[0].attributes["href"].value
-  end
+  # def get_film_title_link_by_name(name)
+  #   html = open("http://www.imdb.com/find?ref_=nv_sr_fn&q=#{name}&s=tt")
+  #   doc = Nokogiri::HTML(html)
+  #   url = doc.css("table.findList tr a")[0].attributes["href"].value
+  # end
 
-  pry.start
+  # pry.start
 
   new_cli = CommandLineInterface.new
   new_cli.run
