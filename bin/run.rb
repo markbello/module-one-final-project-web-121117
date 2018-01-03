@@ -1,5 +1,6 @@
 
 require './config/environment.rb'
+require_relative '../lib/cli_model.rb'
 
 
 require 'nokogiri'
@@ -41,35 +42,33 @@ movie_doc = Nokogiri::HTML(html_by_movie)
 
 test_by_location = location_doc.css("div.lister-list > div.lister-item").map {|location_item| location_item.css("div.lister-item-content > h3 a").text}
 test_by_movie_name = movie_doc.css("#filming_locations_content > div.soda dt").map {|movie_name_item| movie_name_item.text}
+#
+# puts "Please provide the name of the country:"
+# country_name = gets.chomp.downcase
+# puts "Enter City Name"
+# city_name = gets.chomp
+#
+#
+# city_name_array = city_name.split(" ")
 
-puts "Please provide the name of the country:"
-country_name = gets.chomp.downcase
-puts "Enter City Name"
-city_name = gets.chomp
+  #
+  # if country_name == "usa"
+  #   puts "Enter State"
+  #
+  #   state_name = gets.chomp
+  #   state_name_array = state_name.split(" ")
+  #
+  #   full_location_name = city_name_array.join(",%20") + ",%20" + state_name_array.join(",%20") + ",%20USA"
+  #   # new_state_name = state_name_array.join(",%20")
+  #   html_by_input_location = open("http://www.imdb.com/search/title?locations=#{full_location_name}&ref_=ttloc_loc_2")
+  #     # create_location_row
+  # else
+  #   foreign_location_name = "#{city_name},+#{country_name}"
+  #   html_by_input_location = open("http://www.imdb.com/search/title?locations=#{foreign_location_name}")
+  # end
 
-
-city_name_array = city_name.split(" ")
-
-
-  if country_name == "usa"
-    puts "Enter State"
-
-    state_name = gets.chomp
-    state_name_array = state_name.split(" ")
-
-    full_location_name = city_name_array.join(",%20") + ",%20" + state_name_array.join(",%20") + ",%20USA"
-    # new_state_name = state_name_array.join(",%20")
-    html_by_input_location = open("http://www.imdb.com/search/title?locations=#{full_location_name}&ref_=ttloc_loc_2")
-      # create_location_row
-  else
-    foreign_location_name = "#{city_name},+#{country_name}"
-    html_by_input_location = open("http://www.imdb.com/search/title?locations=#{foreign_location_name}")
-  end
-
-
-
-
-
+  new_cli = CommandLineInterface.new
+  new_cli.run
 
 
 # pry.start
