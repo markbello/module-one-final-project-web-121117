@@ -3,7 +3,7 @@ require 'pry'
 class CommandLineInterface
 
 
-  def imdb_search_prefix
+  def imdb_general_search_prefix
     "http://www.imdb.com/search"
   end
 
@@ -13,9 +13,10 @@ class CommandLineInterface
 
     if user_input == "f"
       get_input_for_film
+      # handle_input(input)
     elsif user_input == "l"
       get_input_for_location
-    else puts "Please enter f or m"
+    else puts "Please enter f or l"
     end
 
   end
@@ -41,9 +42,50 @@ class CommandLineInterface
     user_input = gets.chomp
     new_movie = Film.create(name: user_input)
     puts new_movie.name
+    new_movie
   end
 
-  def location_html_creator(location_instance)
+  # def film_title_search_prefix
+  #   "http://www.imdb.com/find?ref_=nv_sr_fn&q="#death+wish&s=tt
+  # end
+
+  def film_url_creator(movie_instance)
+    film_title_search_prefix = "https://www.google.com/search?q="
+    title_array = movie_instance.name.split(" ")
+    search_query = title_array.join("+") + "+imdb"
+    # puts "search_query value #{search_query}"
+    title_search_url = film_title_search_prefix + search_query + "&btnI"
+    # puts "title_search_url #{title_search_url}"
+    # title_search_html = open(title_search_url)
+    # puts "title_search_html is #{title_search_html}"
+    title_search_doc = Nokogiri::HTML(title_search_url)
+    puts "title_search_doc is #{title_search_doc}"
+    puts "title_search_url is #{title_search_url}"
+    film_search_result = title_search_doc.css("link rel="canonical"")
+    puts "film_search_result is #{film_search_result}"
+    # film_imdb_url = film_search_result.attribute["data-href"].value
+    # puts "film_imdb_url is #{film_imdb_url}"
+    #https://www.google.com/search?q=death+wish+2018+imdb
+  end
+
+  def get_location_seeds_by_film_name(url)
+    location_hash_array = []
+    # html_by_location = open("http://www.imdb.com/title/tt0944835/locations?ref_=tt_dt_dt")
+    html_by_location = open(url)
+
+    location_doc = Nokogiri::HTML(html_by_location)
+    location_data = location_doc.css("#filming_locations_content")
+    location_data.css("div.soda > dt a").each do |location_item|
+      location_hash = {}
+      location_hash[:name] = location_item.text.chomp
+      location_hash[:link] = location_item.attributes["href"].value
+      location_hash_array << location_hash
+    end
+    location_hash_array
+  end
+
+
+  def location_url_creator(location_instance)
     puts "running location html"
     city_name_array = location_instance.city_name.split(" ")
     country_name_array = location_instance.country_name.split(" ")
@@ -105,16 +147,12 @@ class CommandLineInterface
     puts film_hash_array
     film_hash_array
   end
+
   def create_film_entries_from_scrape(scrape_array)
     scrape_array.each do |movie_hash|
-      Film.create(name: movie_hash[:name], year: movie_hash[:year])
+      Film.create(name: movie_hash[:name], year: movie_hash[:year], link: movie_hash[:link])
     end
   end
-
-
-    def api_location_given_film
-
-    end
 
 
 
@@ -123,18 +161,14 @@ class CommandLineInterface
     # puts new_instance
     if new_instance.is_a?(Location)
 
-      location_html = location_html_creator(new_instance)
+      location_url = location_url_creator(new_instance)
       # scrape_array = scrape_films_given_location(location_html)
-
-
-      scraped_movie_array = get_film_seeds_by_location(location_html)
+      scraped_movie_array = get_film_seeds_by_location(location_url)
       create_film_entries_from_scrape(scraped_movie_array)
 
-
-
     else
-
-
+      film_url = film_url_creator(new_instance)
+      # puts film_url
     end
 
 
