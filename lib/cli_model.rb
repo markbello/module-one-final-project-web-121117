@@ -44,18 +44,27 @@ class CommandLineInterface
     if location_instance.state_name
       state_name_array = location_instance.state_name.split(" ")
       full_location_html = "http://www.imdb.com/search/title?locations=#{city_name_array.join(",%20")},%20#{state_name_array.join(",%20")},%20USA"
-      puts full_location_html
+
     else
 
-    # foreign_location_name = "#{city_name},+#{country_name}"
-    # html_by_input_location = open("http://www.imdb.com/search/title?locations=#{foreign_location_name}")
-    end
+    foreign_location_name = "#{location_instance.city_name},+#{location_instance.country_name}"
+    full_location_html = "http://www.imdb.com/search/title?locations=#{foreign_location_name}"
 
+    end
+    full_location_html
   end
 
-  # def scrape_film_given_location
-  #   html_by_input_location = open("http://www.imdb.com/search/title?locations=#{full_location_name}&ref_=ttloc_loc_2")
-  # end
+  def scrape_film_given_location(html)
+    html_by_location = open(html)
+    location_doc = Nokogiri::HTML(html_by_location)
+    movie_array = location_doc.css("div.lister-list > div.lister-item").map {|location_item| location_item.css("div.lister-item-content > h3 a").text}
+    puts movie_array
+  end
+  def create_film_entries_from_scrape(scrape_array)
+    scrape_array.each do |movie_title|
+      Film.create(name:movie_title)
+    end
+  end
 
   def api_location_given_film
 
@@ -68,8 +77,10 @@ class CommandLineInterface
     # puts new_instance
     if new_instance.is_a?(Location)
 
-      location_html_creator(new_instance)
-      # scrape_film_given_location
+      location_html = location_html_creator(new_instance)
+      scrape_array = scrape_film_given_location(location_html)
+      # create_film_entries_from_scrape(scrape_array)
+
     else
     end
 
