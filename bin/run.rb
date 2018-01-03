@@ -3,7 +3,7 @@ require './config/environment.rb'
 
 
 require 'nokogiri'
-require 'rest-client'
+# require 'rest-client'
 require 'pry'
 require 'open-uri'
 
@@ -59,4 +59,4 @@ city_name_array = city_name.split(" ")
     html_by_input_location = open("http://www.imdb.com/search/title?locations=#{foreign_location_name}")
   end
 
-pry.start
+# pry.start

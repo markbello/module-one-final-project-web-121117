@@ -7,5 +7,3 @@ gem "pry"
 gem "require_all"
 gem 'rake'
 gem 'nokogiri'
-gem 'rest-client'
-# gem 'open-uri'
