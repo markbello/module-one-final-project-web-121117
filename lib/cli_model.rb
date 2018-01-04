@@ -73,6 +73,21 @@ class CommandLineInterface
   #   puts movie_array
   # end
 
+  def get_location_seeds_by_film_name
+  location_hash_array = []
+  html_by_location = open("http://www.imdb.com/title/tt0944835/locations?ref_=tt_dt_dt")
+
+  location_doc = Nokogiri::HTML(html_by_location)
+  location_data = location_doc.css("#filming_locations_content")
+  location_data.css("div.soda > dt a").each do |location_item|
+    location_hash = {}
+    location_hash[:name] = location_item.text.chomp
+    location_hash[:link] = location_item.attributes["href"].value
+    location_hash_array << location_hash
+  end
+  location_hash_array
+end
+
   def get_film_seeds_by_location(url)
     puts "running get film seeds method #{url}"
     film_hash_array = []
