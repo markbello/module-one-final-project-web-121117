@@ -58,7 +58,7 @@ class CommandLineInterface
     country_name_array = location_hash[:country_name].split(" ")
     if location_hash[:state_name]
       state_name_array = location_hash[:state_name].split(" ")
-      full_location_html = "/title?locations=#{city_name_array.join(",%20")},%20#{state_name_array.join(",%20")},%20USA"
+      full_location_html = "/title?locations=#{city_name_array.join(",%20")},%20#{state_name_array.join("%20")},%20USA"
 
     else
       #need to account for names with two words
@@ -109,7 +109,11 @@ class CommandLineInterface
     location_data.css("div.soda > dt a").each do |location_item|
       location_hash = {}
       location_hash[:name] = location_item.text.chomp
-      location_hash[:link] = location_item.attributes["href"].value
+      short_link = location_item.attributes["href"].value
+      link_ending = /\&ref.*/.match(short_link)[0]
+
+      short_link.slice!(link_ending)
+      location_hash[:link] = short_link
       location_hash_array << location_hash
       split_location_item = location_hash[:name].split(", ")
 
