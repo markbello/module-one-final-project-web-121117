@@ -41,14 +41,17 @@ class CommandLineInterface
 
   def get_input_for_film
     puts "Please enter a movie title:"
-    user_input = gets.chomp.split(" ").join("+")
+    film_name_hash = {}
+    film_name_hash[:name] = gets.chomp
+    # user_input = gets.chomp.split(" ").join("+")
 
-    handle_film_input(user_input)
+    handle_film_input(film_name_hash)
   end
   def handle_film_input(input)
-    # Film.find_or_create_by(input)
-    url = get_film_title_link_by_name(input)
-    get_location_seeds_by_film_name(url)
+    Film.find_or_create_by(input)
+
+
+    # get_location_seeds_by_film_name(url)
 
   end
 
@@ -69,6 +72,12 @@ class CommandLineInterface
     return_html = imdb_search_prefix + full_location_html
     return_html
   end
+  def film_url_creator(film_instance)
+    # film_word_array = film_instance
+    name_formatted_for_url = film_instance[:name].split(" ").join("+")
+    # url = get_film_title_link_by_name(input)
+
+  end
 
   # def scrape_films_given_location(html)
   #   html_by_location = open(html)
@@ -81,15 +90,15 @@ class CommandLineInterface
     html = open("http://www.imdb.com/find?ref_=nv_sr_fn&q=#{name}&s=tt")
     doc = Nokogiri::HTML(html)
     url = doc.css("table.findList tr a")[0].attributes["href"].value
+    url.slice!("?ref_=fn_tt_tt_1")
+    url = "http://www.imdb.com" + url +"locations?ref_=tt_dt_dt"
   end
 
   def get_location_seeds_by_film_name(url)
 
     location_hash_array = []
-    url.slice!("?ref_=fn_tt_tt_1")
-    url = "http://www.imdb.com" + url +"locations?ref_=tt_dt_dt"
+    
     html_by_location = open(url)
-
     location_doc = Nokogiri::HTML(html_by_location)
     location_data = location_doc.css("#filming_locations_content")
     location_data.css("div.soda > dt a").each do |location_item|
@@ -172,7 +181,11 @@ class CommandLineInterface
       # new_instance.films.all.each{|film| puts film.name }
       binding.pry
     else
-
+      if new_instance.locations.count == 0
+        # name_formatted_for_url = film_url_creator(new_instance)
+        # film_title_link = get_film_title_link_by_name(name_formatted_for_url)
+        # get_location_seeds_by_film_name(film_title_link)
+      end
     end
   end
 end
