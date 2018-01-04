@@ -23,13 +23,13 @@ class CommandLineInterface
   def get_input_for_location
     input_location = {}
     puts "Please provide the name of the country:"
-    input_location[:country_name] = gets.chomp
+    input_location[:country_name] = gets.chomp.downcase
     puts "Enter City Name"
-    input_location[:city_name] = gets.chomp
+    input_location[:city_name] = gets.chomp.downcase
 
     if input_location[:country_name] == "usa"
         puts "Enter State"
-        state_name = gets.chomp
+        state_name = gets.chomp.downcase
         input_location[:state_name] = state_name
     end
     handle_location_input(input_location)
@@ -118,10 +118,12 @@ class CommandLineInterface
   def run
     new_instance = greet
     if new_instance.is_a?(Location)
-
-      location_html = location_html_creator(new_instance)
-      scraped_movie_array = get_film_seeds_by_location(location_html)
-      create_film_entries_from_scrape(scraped_movie_array, new_instance)
+      if new_instance.films.count == 0
+        location_html = location_html_creator(new_instance)
+        scraped_movie_array = get_film_seeds_by_location(location_html)
+        create_film_entries_from_scrape(scraped_movie_array, new_instance)
+      end
+      # new_instance.films.all.each{|film| puts film.name }
       binding.pry
     else
 
