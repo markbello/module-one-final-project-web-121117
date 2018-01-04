@@ -42,15 +42,10 @@ class CommandLineInterface
   def get_input_for_film
     puts "Please enter a movie title:"
     input = gets.chomp
-    # user_input = gets.chomp.split(" ").join("+")
-    # handle_film_input(input)
   end
+
   def handle_film_input(input)
     Film.find_or_create_by(input)
-
-
-    # get_location_seeds_by_film_name(url)
-
   end
 
   def location_url_creator(location_instance)
@@ -72,17 +67,8 @@ class CommandLineInterface
   end
 
   def film_url_creator(film_name_user_input)
-    # film_word_array = film_instance
     name_formatted_for_url = film_name_user_input.split(" ").join("+")
-    # url = get_film_title_link_by_name(input)
   end
-
-  # def scrape_films_given_location(html)
-  #   html_by_location = open(html)
-  #   location_doc = Nokogiri::HTML(html_by_location)
-  #   movie_array = location_doc.css("div.lister-list > div.lister-item").map {|location_item| location_item.css("div.lister-item-content > h3 a").text}
-  #   puts movie_array
-  # end
 
   def get_film_hash_by_name(name_formatted_for_url)
     search_result_html = open("http://www.imdb.com/find?ref_=nv_sr_fn&q=#{name_formatted_for_url}&s=tt")
@@ -179,11 +165,6 @@ class CommandLineInterface
 
   def create_location_entries_from_scrape(location_hash_array, film)
     location_hash_array.each do |location_hash|
-
-
-      # binding.pry
-      # location_instance = handle_location_input(search_hash)
-      # location_instance.films << film_instance
       new_location = Location.find_or_create_by(location_hash)
       new_location.films << film
       new_location.save
@@ -201,16 +182,15 @@ class CommandLineInterface
       # new_instance.films.all.each{|film| puts film.name }
       # binding.pry
     else
-      # if new_instance.locations.count == 0
-        film_name_user_input = get_input_for_film
-        name_formatted_for_url = film_url_creator(film_name_user_input)
-        film_hash = get_film_hash_by_name(name_formatted_for_url)
-        film_instance = Film.find_or_create_by(film_hash)
+      film_name_user_input = new_instance
+      name_formatted_for_url = film_url_creator(film_name_user_input)
+      film_hash = get_film_hash_by_name(name_formatted_for_url)
+      film_instance = handle_film_input(film_hash)
+      if film_instance.locations.count == 0
         location_hash_array = get_location_seeds_by_film_name(film_instance)
         create_location_entries_from_scrape(location_hash_array.uniq, film_instance)
-        binding.pry
-      # end
-
+      end
+        # binding.pry
     end
   end
 end
