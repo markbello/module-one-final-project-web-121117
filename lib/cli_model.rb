@@ -193,6 +193,7 @@ class CommandLineInterface
       film_hash = get_film_hash_by_name(name_formatted_for_url)
       film_instance = handle_film_input(film_hash)
       # binding.pry
+
       if film_instance.locations.count == 0
         location_hash_array = get_location_seeds_by_film_name(film_instance)
         create_location_entries_from_scrape(location_hash_array.uniq, film_instance)
