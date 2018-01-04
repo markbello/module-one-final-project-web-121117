@@ -15,25 +15,30 @@ class CommandLineInterface
       get_input_for_film
     elsif user_input == "l"
       get_input_for_location
-    else puts "Please enter f or m"
+    else puts "Please enter F or L"
     end
 
   end
 
   def get_input_for_location
-
+    input_location = {}
     puts "Please provide the name of the country:"
-    country_name = gets.chomp.downcase
+    input_location[:country_name] = gets.chomp
     puts "Enter City Name"
-    city_name = gets.chomp
-    new_location= Location.create(city_name: city_name, country_name: country_name)
+    input_location[:city_name] = gets.chomp
 
-    if country_name == "usa"
+    if input_location[:country_name] == "usa"
         puts "Enter State"
         state_name = gets.chomp
-        new_location.state_name = state_name
+        input_location[:state_name] = state_name
     end
-    new_location
+    handle_location_input(input_location)
+  end
+
+  def handle_location_input(input)
+    x = Location.find_or_create_by(input)
+    # binding.pry
+    # new_location= Location.create(city_name: input[:city_name], country_name: input[:country_name])
   end
 
   def get_input_for_film
@@ -61,12 +66,12 @@ class CommandLineInterface
     return_html
   end
 
-  def scrape_films_given_location(html)
-    html_by_location = open(html)
-    location_doc = Nokogiri::HTML(html_by_location)
-    movie_array = location_doc.css("div.lister-list > div.lister-item").map {|location_item| location_item.css("div.lister-item-content > h3 a").text}
-    puts movie_array
-  end
+  # def scrape_films_given_location(html)
+  #   html_by_location = open(html)
+  #   location_doc = Nokogiri::HTML(html_by_location)
+  #   movie_array = location_doc.css("div.lister-list > div.lister-item").map {|location_item| location_item.css("div.lister-item-content > h3 a").text}
+  #   puts movie_array
+  # end
 
   def get_film_seeds_by_location(url)
     puts "running get film seeds method #{url}"
@@ -97,14 +102,19 @@ class CommandLineInterface
 
       film_imdb_id = location_item.css("div.lister-item-content > h3.lister-item-header a")[0].attributes["href"].value
       film_hash[:link] = film_imdb_id
+
+
+
       film_hash_array << film_hash
     end
     film_hash_array
   end
 
-  def create_film_entries_from_scrape(scrape_array)
-    scrape_array.each do |movie_hash|
-      Film.create(name: movie_hash[:name], year: movie_hash[:year])
+  def create_film_entries_from_scrape(film_hash_array, location)
+    film_hash_array.each do |film_hash|
+      new_film = Film.create(name: film_hash[:name], year: film_hash[:year], link: film_hash[:link])
+      new_film.locations << location
+      binding.pry
     end
   end
 
@@ -114,7 +124,7 @@ class CommandLineInterface
 
       location_html = location_html_creator(new_instance)
       scraped_movie_array = get_film_seeds_by_location(location_html)
-      create_film_entries_from_scrape(scraped_movie_array)
+      create_film_entries_from_scrape(scraped_movie_array, new_instance)
 
     else
 
