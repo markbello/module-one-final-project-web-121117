@@ -37,15 +37,18 @@ class CommandLineInterface
 
   def handle_location_input(input)
     x = Location.find_or_create_by(input)
-    # binding.pry
-    # new_location= Location.create(city_name: input[:city_name], country_name: input[:country_name])
   end
 
   def get_input_for_film
     puts "Please enter a movie title:"
-    user_input = gets.chomp
-    new_movie = Film.create(name: user_input)
-    puts new_movie.name
+    user_input = gets.chomp.split(" ").join("+")
+
+    handle_film_input(user_input)
+  end
+  def handle_film_input(input)
+    url = get_film_title_link_by_name(input)
+    get_location_seeds_by_film_name(url)
+
   end
 
   def location_html_creator(location_instance)
@@ -73,20 +76,31 @@ class CommandLineInterface
   #   puts movie_array
   # end
 
-  def get_location_seeds_by_film_name
-  location_hash_array = []
-  html_by_location = open("http://www.imdb.com/title/tt0944835/locations?ref_=tt_dt_dt")
-
-  location_doc = Nokogiri::HTML(html_by_location)
-  location_data = location_doc.css("#filming_locations_content")
-  location_data.css("div.soda > dt a").each do |location_item|
-    location_hash = {}
-    location_hash[:name] = location_item.text.chomp
-    location_hash[:link] = location_item.attributes["href"].value
-    location_hash_array << location_hash
+  def get_film_title_link_by_name(name)
+    html = open("http://www.imdb.com/find?ref_=nv_sr_fn&q=#{name}&s=tt")
+    doc = Nokogiri::HTML(html)
+    url = doc.css("table.findList tr a")[0].attributes["href"].value
   end
-  location_hash_array
-end
+
+  def get_location_seeds_by_film_name(url)
+
+    location_hash_array = []
+    url.slice!("?ref_=fn_tt_tt_1")
+    url = "http://www.imdb.com" + url +"locations?ref_=tt_dt_dt"
+    html_by_location = open(url)
+
+    location_doc = Nokogiri::HTML(html_by_location)
+    location_data = location_doc.css("#filming_locations_content")
+    location_data.css("div.soda > dt a").each do |location_item|
+      location_hash = {}
+      location_hash[:name] = location_item.text.chomp
+      location_hash[:link] = location_item.attributes["href"].value
+      location_hash_array << location_hash
+    end
+
+
+    location_hash_array
+  end
 
   def get_film_seeds_by_location(url)
     puts "running get film seeds method #{url}"
