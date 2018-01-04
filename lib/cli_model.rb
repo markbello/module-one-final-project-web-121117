@@ -28,15 +28,21 @@ class CommandLineInterface
     input_location[:city_name] = gets.chomp.split(" ").map{|word| word.capitalize}.join(" ")
 
     if input_location[:country_name] == "USA"
-        puts "Enter State"
-        state_name = gets.chomp.split(" ").map{|word| word.capitalize}.join(" ")
-        input_location[:state_name] = state_name
+      puts "Enter State"
+      state_name = gets.chomp.split(" ").map{|word| word.capitalize}.join(" ")
+      input_location[:state_name] = state_name
+    else
+      input_location[:country_name] = input_location[:country_name].split(" ").map{|word| word.capitalize}.join(" ")
     end
     input_location
     url = location_url_creator(input_location)
     url.slice!("http://www.imdb.com")
     input_location[:link] = url
-    input_location[:name] = "#{input_location[:city_name]}, #{input_location[:state_name]}, #{input_location[:country_name]}"
+    if input_location[:state] == nil
+      input_location[:name] = "#{input_location[:city_name]}, #{input_location[:country_name]}"
+    else
+      input_location[:name] = "#{input_location[:city_name]}, #{input_location[:state_name]}, #{input_location[:country_name]}"
+    end
     handle_location_input(input_location)
   end
 
