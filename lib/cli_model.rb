@@ -103,8 +103,6 @@ class CommandLineInterface
       film_imdb_id = location_item.css("div.lister-item-content > h3.lister-item-header a")[0].attributes["href"].value
       film_hash[:link] = film_imdb_id
 
-
-
       film_hash_array << film_hash
     end
     film_hash_array
@@ -114,7 +112,6 @@ class CommandLineInterface
     film_hash_array.each do |film_hash|
       new_film = Film.create(name: film_hash[:name], year: film_hash[:year], link: film_hash[:link])
       new_film.locations << location
-      binding.pry
     end
   end
 
@@ -125,7 +122,7 @@ class CommandLineInterface
       location_html = location_html_creator(new_instance)
       scraped_movie_array = get_film_seeds_by_location(location_html)
       create_film_entries_from_scrape(scraped_movie_array, new_instance)
-
+      binding.pry
     else
 
     end
