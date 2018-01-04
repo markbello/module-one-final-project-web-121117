@@ -41,11 +41,9 @@ class CommandLineInterface
 
   def get_input_for_film
     puts "Please enter a movie title:"
-    film_name_hash = {}
-    film_name_hash[:name] = gets.chomp
+    input = gets.chomp
     # user_input = gets.chomp.split(" ").join("+")
-
-    handle_film_input(film_name_hash)
+    # handle_film_input(input)
   end
   def handle_film_input(input)
     Film.find_or_create_by(input)
@@ -72,11 +70,11 @@ class CommandLineInterface
     return_html = imdb_search_prefix + full_location_html
     return_html
   end
-  def film_url_creator(film_instance)
-    # film_word_array = film_instance
-    name_formatted_for_url = film_instance[:name].split(" ").join("+")
-    # url = get_film_title_link_by_name(input)
 
+  def film_url_creator(film_name_user_input)
+    # film_word_array = film_instance
+    name_formatted_for_url = film_name_user_input.split(" ").join("+")
+    # url = get_film_title_link_by_name(input)
   end
 
   # def scrape_films_given_location(html)
@@ -86,12 +84,27 @@ class CommandLineInterface
   #   puts movie_array
   # end
 
-  def get_film_title_link_by_name(name)
-    html = open("http://www.imdb.com/find?ref_=nv_sr_fn&q=#{name}&s=tt")
-    doc = Nokogiri::HTML(html)
-    url = doc.css("table.findList tr a")[0].attributes["href"].value
-    url.slice!("?ref_=fn_tt_tt_1")
-    url = "http://www.imdb.com" + url +"locations?ref_=tt_dt_dt"
+  def get_film_hash_by_name(name_formatted_for_url)
+    search_result_html = open("http://www.imdb.com/find?ref_=nv_sr_fn&q=#{name_formatted_for_url}&s=tt")
+    search_result_doc = Nokogiri::HTML(search_result_html)
+    film_page_url = search_result_doc.css("table.findList tr a")[0].attributes["href"].value
+
+    film_page_html = open("http://www.imdb.com#{film_page_url}")
+    film_page_doc = Nokogiri::HTML(film_page_html)
+    raw_film_name = film_page_doc.css("div.title_wrapper h1").text
+    film_name = /.*\(/.match(raw_film_name)[0].chop.chop
+    film_year = /\d{4}/.match(raw_film_name)[0]
+
+    film_hash = {}
+    film_hash[:name] = film_name
+    film_hash[:year] = film_year
+    film_hash[:link] = film_page_url
+
+    film_hash
+    binding.pry
+    # url.slice!("?ref_=fn_tt_tt_1")
+    # binding.pry
+    # url = "http://www.imdb.com" + url +"locations?ref_=tt_dt_dt"
   end
 
   def get_location_seeds_by_film_name(url)
@@ -122,7 +135,7 @@ class CommandLineInterface
   end
 
   def get_film_seeds_by_location(url)
-    puts "running get film seeds method #{url}"
+    # puts "running get film seeds method #{url}"
     film_hash_array = []
     html_by_location = open(url)
     location_doc = Nokogiri::HTML(html_by_location)
@@ -185,16 +198,16 @@ class CommandLineInterface
         create_film_entries_from_scrape(scraped_film_hash_array, new_instance)
       end
       # new_instance.films.all.each{|film| puts film.name }
-      binding.pry
+      # binding.pry
     else
-      if new_instance.locations.count == 0
-        name_formatted_for_url = film_url_creator(new_instance)
-        film_title_link = get_film_title_link_by_name(name_formatted_for_url)
+      # if new_instance.locations.count == 0
+        film_name_user_input = get_input_for_film
+        name_formatted_for_url = film_url_creator(film_name_user_input)
+        film_title_link = get_film_hash_by_name(name_formatted_for_url)
         location_hash_array = get_location_seeds_by_film_name(film_title_link)
-
         create_location_entries_from_scrape(location_hash_array, new_instance)
-        binding.pry
-      end
+      # end
+      # binding.pry
     end
   end
 end
