@@ -52,7 +52,7 @@ class CommandLineInterface
 
   end
 
-  def location_html_creator(location_instance)
+  def location_url_creator(location_instance)
     puts "running location html"
     city_name_array = location_instance.city_name.split(" ")
     country_name_array = location_instance.country_name.split(" ")
@@ -97,6 +97,7 @@ class CommandLineInterface
       location_hash[:name] = location_item.text.chomp
       location_hash[:link] = location_item.attributes["href"].value
       location_hash_array << location_hash
+
       # split_location_item = location_hash[:name].split(", ")
       # search_hash = {}
       # search_hash[:city_name] = split_location_item[-3]
@@ -153,14 +154,20 @@ class CommandLineInterface
       new_film.locations << location
     end
   end
+  # def create_location_entries_from_scrape(location_hash_array, film)
+  #   location_hash_array.each do |location_hash|
+  #     new_location = Location.create(city_name: location_hash[:city_name], state_name: location_hash[:state_name], country_name: location_hash[:country_name])
+  #     new_location.films << film
+  #   end
+  # end
 
   def run
     new_instance = greet
     if new_instance.is_a?(Location)
       if new_instance.films.count == 0
-        location_html = location_html_creator(new_instance)
-        scraped_movie_array = get_film_seeds_by_location(location_html)
-        create_film_entries_from_scrape(scraped_movie_array, new_instance)
+        location_url = location_url_creator(new_instance)
+        scraped_film_hash_array = get_film_seeds_by_location(location_url)
+        create_film_entries_from_scrape(scraped_film_hash_array, new_instance)
       end
       # new_instance.films.all.each{|film| puts film.name }
       binding.pry
