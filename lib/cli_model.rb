@@ -23,16 +23,17 @@ class CommandLineInterface
   def get_input_for_location
     input_location = {}
     puts "Please provide the name of the country:"
-    input_location[:country_name] = gets.chomp.downcase
+    input_location[:country_name] = gets.chomp.upcase
     puts "Enter City Name"
-    input_location[:city_name] = gets.chomp.downcase
+    input_location[:city_name] = gets.chomp.capitalize
 
     if input_location[:country_name] == "usa"
         puts "Enter State"
-        state_name = gets.chomp.downcase
-        input_location[:state_name] = state_name
+        state_name = gets.chomp.capitalize
+        input_location[:state_name] = state_name.capitalize
     end
-    handle_location_input(input_location)
+    input_location
+    url = location_url_creator(input_location)
   end
 
   def handle_location_input(input)
@@ -48,12 +49,11 @@ class CommandLineInterface
     Film.find_or_create_by(input)
   end
 
-  def location_url_creator(location_instance)
-    puts "running location html"
-    city_name_array = location_instance.city_name.split(" ")
-    country_name_array = location_instance.country_name.split(" ")
-    if location_instance.state_name
-      state_name_array = location_instance.state_name.split(" ")
+  def location_url_creator(location_hash)
+    city_name_array = location_hash[:city_name].split(" ")
+    country_name_array = location_hash[:country_name].split(" ")
+    if location_hash.state_name
+      state_name_array = location_hash[:state_name].split(" ")
       full_location_html = "/title?locations=#{city_name_array.join(",%20")},%20#{state_name_array.join(",%20")},%20USA"
 
     else
