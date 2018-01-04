@@ -36,7 +36,7 @@ class CommandLineInterface
   end
 
   def handle_location_input(input)
-    x = Location.find_or_create_by(input)
+    Location.find_or_create_by(input)
   end
 
   def get_input_for_film
@@ -46,6 +46,7 @@ class CommandLineInterface
     handle_film_input(user_input)
   end
   def handle_film_input(input)
+    # Film.find_or_create_by(input)
     url = get_film_title_link_by_name(input)
     get_location_seeds_by_film_name(url)
 
@@ -96,10 +97,19 @@ class CommandLineInterface
       location_hash[:name] = location_item.text.chomp
       location_hash[:link] = location_item.attributes["href"].value
       location_hash_array << location_hash
+      # split_location_item = location_hash[:name].split(", ")
+      # search_hash = {}
+      # search_hash[:city_name] = split_location_item[-3]
+      # search_hash[:state_name] = split_location_item[-2]
+      # search_hash[:country_name] = split_location_item[-1]
+      # location_instance = handle_location_input(search_hash)
+      # location_instance.films << film_instance
+      location_hash_array
     end
 
 
     location_hash_array
+    binding.pry
   end
 
   def get_film_seeds_by_location(url)
