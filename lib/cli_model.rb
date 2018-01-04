@@ -101,15 +101,16 @@ class CommandLineInterface
     film_hash[:link] = film_page_url
 
     film_hash
-    binding.pry
-    # url.slice!("?ref_=fn_tt_tt_1")
     # binding.pry
-    # url = "http://www.imdb.com" + url +"locations?ref_=tt_dt_dt"
+
   end
 
-  def get_location_seeds_by_film_name(url)
+  def get_location_seeds_by_film_name(film_instance)
 
     location_hash_array = []
+    shortened_url = film_instance[:link]
+    shortened_url.slice!("?ref_=fn_tt_tt_1")
+    url = "http://www.imdb.com" + shortened_url + "locations?ref_=tt_dt_dt"
 
     html_by_location = open(url)
     location_doc = Nokogiri::HTML(html_by_location)
@@ -183,7 +184,7 @@ class CommandLineInterface
       # binding.pry
       # location_instance = handle_location_input(search_hash)
       # location_instance.films << film_instance
-      new_location = Location.create(city_name: location_hash[:city_name], state_name: location_hash[:state_name], country_name: location_hash[:country_name])
+      new_location = Location.find_or_create_by(location_hash)
       new_location.films << film
       new_location.save
     end
@@ -203,11 +204,13 @@ class CommandLineInterface
       # if new_instance.locations.count == 0
         film_name_user_input = get_input_for_film
         name_formatted_for_url = film_url_creator(film_name_user_input)
-        film_title_link = get_film_hash_by_name(name_formatted_for_url)
-        location_hash_array = get_location_seeds_by_film_name(film_title_link)
-        create_location_entries_from_scrape(location_hash_array, new_instance)
+        film_hash = get_film_hash_by_name(name_formatted_for_url)
+        film_instance = Film.find_or_create_by(film_hash)
+        location_hash_array = get_location_seeds_by_film_name(film_instance)
+        create_location_entries_from_scrape(location_hash_array.uniq, film_instance)
+        binding.pry
       # end
-      # binding.pry
+
     end
   end
 end
