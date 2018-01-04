@@ -96,9 +96,6 @@ class CommandLineInterface
   def get_location_seeds_by_film_name(film_instance)
 
     location_hash_array = []
-    # shortened_url = film_instance[:link]
-    # binding.pry
-    # shortened_url.slice!("?ref_=fn_tt_tt_1")
     url = "http://www.imdb.com" + film_instance[:link] + "locations?ref_=tt_dt_dt"
 
     html_by_location = open(url)
@@ -167,10 +164,8 @@ class CommandLineInterface
       smaller_film_hash[:year] = film_hash[:year]
       smaller_film_hash[:link] = film_hash[:link]
 
-      # new_film = Film.create(name: film_hash[:name], year: film_hash[:year], link: film_hash[:link])
       new_film = Film.find_or_create_by(smaller_film_hash)
       # binding.pry
-      # new_film[:link] == nil ? new_film[:link] = film_hash[:link] : false
       new_film.locations << location
     end
   end
@@ -191,7 +186,6 @@ class CommandLineInterface
         scraped_film_hash_array = get_film_seeds_by_location(location_url)
         create_film_entries_from_scrape(scraped_film_hash_array, new_instance)
       end
-      # new_instance.films.all.each{|film| puts film.name }
       # binding.pry
     else
       film_name_user_input = new_instance
