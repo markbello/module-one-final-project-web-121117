@@ -97,29 +97,28 @@ class CommandLineInterface
   def get_location_seeds_by_film_name(url)
 
     location_hash_array = []
-    
+
     html_by_location = open(url)
     location_doc = Nokogiri::HTML(html_by_location)
     location_data = location_doc.css("#filming_locations_content")
+
     location_data.css("div.soda > dt a").each do |location_item|
       location_hash = {}
       location_hash[:name] = location_item.text.chomp
       location_hash[:link] = location_item.attributes["href"].value
       location_hash_array << location_hash
+      split_location_item = location_hash[:name].split(", ")
 
-      # split_location_item = location_hash[:name].split(", ")
-      # search_hash = {}
-      # search_hash[:city_name] = split_location_item[-3]
-      # search_hash[:state_name] = split_location_item[-2]
-      # search_hash[:country_name] = split_location_item[-1]
-      # location_instance = handle_location_input(search_hash)
-      # location_instance.films << film_instance
-      location_hash_array
+      location_hash[:city_name] = split_location_item[-3]
+      location_hash[:state_name] = split_location_item[-2]
+      location_hash[:country_name] = split_location_item[-1]
+
+      location_hash_array << location_hash
     end
 
 
     location_hash_array
-    binding.pry
+    # binding.pry
   end
 
   def get_film_seeds_by_location(url)
@@ -163,12 +162,19 @@ class CommandLineInterface
       new_film.locations << location
     end
   end
-  # def create_location_entries_from_scrape(location_hash_array, film)
-  #   location_hash_array.each do |location_hash|
-  #     new_location = Location.create(city_name: location_hash[:city_name], state_name: location_hash[:state_name], country_name: location_hash[:country_name])
-  #     new_location.films << film
-  #   end
-  # end
+
+  def create_location_entries_from_scrape(location_hash_array, film)
+    location_hash_array.each do |location_hash|
+
+
+      # binding.pry
+      # location_instance = handle_location_input(search_hash)
+      # location_instance.films << film_instance
+      new_location = Location.create(city_name: location_hash[:city_name], state_name: location_hash[:state_name], country_name: location_hash[:country_name])
+      new_location.films << film
+      new_location.save
+    end
+  end
 
   def run
     new_instance = greet
@@ -182,9 +188,12 @@ class CommandLineInterface
       binding.pry
     else
       if new_instance.locations.count == 0
-        # name_formatted_for_url = film_url_creator(new_instance)
-        # film_title_link = get_film_title_link_by_name(name_formatted_for_url)
-        # get_location_seeds_by_film_name(film_title_link)
+        name_formatted_for_url = film_url_creator(new_instance)
+        film_title_link = get_film_title_link_by_name(name_formatted_for_url)
+        location_hash_array = get_location_seeds_by_film_name(film_title_link)
+
+        create_location_entries_from_scrape(location_hash_array, new_instance)
+        binding.pry
       end
     end
   end
