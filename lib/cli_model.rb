@@ -25,15 +25,19 @@ class CommandLineInterface
     puts "Please provide the name of the country:"
     input_location[:country_name] = gets.chomp.upcase
     puts "Enter City Name"
-    input_location[:city_name] = gets.chomp.capitalize
+    input_location[:city_name] = gets.chomp.split(" ").map{|word| word.capitalize}.join(" ")
 
-    if input_location[:country_name] == "usa"
+    if input_location[:country_name] == "USA"
         puts "Enter State"
-        state_name = gets.chomp.capitalize
-        input_location[:state_name] = state_name.capitalize
+        state_name = gets.chomp.split(" ").map{|word| word.capitalize}.join(" ")
+        input_location[:state_name] = state_name
     end
     input_location
     url = location_url_creator(input_location)
+    url.slice!("http://www.imdb.com")
+    input_location[:link] = url
+    input_location[:name] = "#{input_location[:city_name]}, #{input_location[:state_name]}, #{input_location[:country_name]}"
+    handle_location_input(input_location)
   end
 
   def handle_location_input(input)
@@ -52,13 +56,13 @@ class CommandLineInterface
   def location_url_creator(location_hash)
     city_name_array = location_hash[:city_name].split(" ")
     country_name_array = location_hash[:country_name].split(" ")
-    if location_hash.state_name
+    if location_hash[:state_name]
       state_name_array = location_hash[:state_name].split(" ")
       full_location_html = "/title?locations=#{city_name_array.join(",%20")},%20#{state_name_array.join(",%20")},%20USA"
 
     else
       #need to account for names with two words
-      foreign_location_name = "#{location_instance.city_name},+#{location_instance.country_name}"
+      foreign_location_name = "#{location_hash[:city_name]},+#{location_hash[:country_name]}"
       full_location_html = "/title?locations=#{foreign_location_name}"
 
     end
