@@ -1,4 +1,5 @@
 require 'pry'
+require './states.rb'
 
 class CommandLineInterface
 
@@ -15,7 +16,9 @@ class CommandLineInterface
       get_input_for_film
     elsif user_input == "l"
       get_input_for_location
-    else puts "Please enter F or L"
+    else
+      puts "Invalid entry! Please enter F or L"
+      greet
     end
 
   end
@@ -29,7 +32,11 @@ class CommandLineInterface
 
     if input_location[:country_name] == "USA"
       puts "Enter State"
-      state_name = gets.chomp.split(" ").map{|word| word.capitalize}.join(" ")
+      state_name = gets.chomp
+      downcased_states_array.find do |state|
+        binding.pry
+        [0].capitalize == state_name
+      end
       input_location[:state_name] = state_name
     else
       input_location[:country_name] = input_location[:country_name].split(" ").map{|word| word.capitalize}.join(" ")
@@ -67,7 +74,6 @@ class CommandLineInterface
       full_location_html = "/title?locations=#{city_name_array.join(",%20")},%20#{state_name_array.join("%20")},%20USA"
 
     else
-      #need to account for names with two words
       foreign_location_name = "#{location_hash[:city_name]},+#{location_hash[:country_name]}"
       full_location_html = "/title?locations=#{foreign_location_name}"
 
@@ -99,15 +105,13 @@ class CommandLineInterface
     film_hash[:link].slice!("?ref_=fn_tt_tt_1")
 
     film_hash
-    # binding.pry
-
   end
 
   def get_location_seeds_by_film_name(film_instance)
 
     location_hash_array = []
     url = "http://www.imdb.com" + film_instance[:link] + "locations?ref_=tt_dt_dt"
-
+    # binding.pry
     html_by_location = open(url)
     location_doc = Nokogiri::HTML(html_by_location)
     location_data = location_doc.css("#filming_locations_content")
@@ -129,14 +133,10 @@ class CommandLineInterface
 
       location_hash_array << location_hash
     end
-
-
     location_hash_array
-    # binding.pry
   end
 
   def get_film_seeds_by_location(url)
-    # puts "running get film seeds method #{url}"
     film_hash_array = []
     html_by_location = open(url)
     location_doc = Nokogiri::HTML(html_by_location)
@@ -179,7 +179,6 @@ class CommandLineInterface
       smaller_film_hash[:link] = film_hash[:link]
 
       new_film = Film.find_or_create_by(smaller_film_hash)
-      # binding.pry
       new_film.locations << location
     end
   end
@@ -188,8 +187,30 @@ class CommandLineInterface
     location_hash_array.each do |location_hash|
       new_location = Location.find_or_create_by(location_hash)
       new_location.films << film
-      new_location.save
     end
+  end
+
+  def display_locations_by_film(film_instance)
+    film_name = film_instance[:name]
+    film_locations = film_instance.locations.all.map{|film_location| film_location[:name]}
+    system("clear")
+
+    output_message = "Locations for #{film_name} are:"
+    puts output_message
+    output_message.length.times {print "-"}
+    puts ""
+    film_locations.each { |film_location| puts film_location}
+  end
+
+  def display_films_by_location(location_instance)
+    location_name = location_instance[:name]
+    films_based_on_location = location_instance.films.all.map{|film| film[:name]}
+    system("clear")
+    output_message = "Films shot in #{location_name} are:"
+    puts output_message
+    output_message.length.times {print "-"}
+    puts ""
+    films_based_on_location.each { |film_name| puts film_name }
   end
 
   def run
@@ -200,19 +221,18 @@ class CommandLineInterface
         scraped_film_hash_array = get_film_seeds_by_location(location_url)
         create_film_entries_from_scrape(scraped_film_hash_array, new_instance)
       end
-      # binding.pry
+      display_films_by_location(new_instance)
     else
       film_name_user_input = new_instance
       name_formatted_for_url = film_url_creator(film_name_user_input)
       film_hash = get_film_hash_by_name(name_formatted_for_url)
       film_instance = handle_film_input(film_hash)
-      # binding.pry
 
       if film_instance.locations.count == 0
         location_hash_array = get_location_seeds_by_film_name(film_instance)
         create_location_entries_from_scrape(location_hash_array.uniq, film_instance)
       end
-        # binding.pry
+        display_locations_by_film(film_instance)
     end
   end
 end
