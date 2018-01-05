@@ -28,16 +28,16 @@ class CommandLineInterface
     puts "Please provide the name of the country:"
     input_location[:country_name] = gets.chomp.upcase
     puts "Enter City Name"
-    input_location[:city_name] = gets.chomp.split(" ").map{|word| word.capitalize}.join(" ")
-
+    input_location[:city_name] = gets.chomp
     if input_location[:country_name] == "USA"
       puts "Enter State"
-      state_name = gets.chomp
-      downcased_states_array.find do |state|
-        binding.pry
-        [0].capitalize == state_name
+      state_input = gets.chomp
+      found_state = downcased_states_array.find do |state|
+        state.include?(state_input.downcase)
       end
-      input_location[:state_name] = state_name
+      valid_state = found_state[1].split(" ").map{|word| word.capitalize}.join(" ")
+      input_location[:state_name] = valid_state
+      binding.pry
     else
       input_location[:country_name] = input_location[:country_name].split(" ").map{|word| word.capitalize}.join(" ")
     end
